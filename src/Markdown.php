@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the jinyPHP package.
  *
@@ -36,6 +35,9 @@ class Markdown
         }
     }
 
+    /**
+     * 객체를 확장합니다.
+     */
     private $Parsedown;
     private function Parsedown()
     {
@@ -47,6 +49,9 @@ class Markdown
         return $this;
     }
  
+    /**
+     * 변환을 처리합니다.
+     */
     public function render($body)
     {
         return $this->Parsedown->text($body);
