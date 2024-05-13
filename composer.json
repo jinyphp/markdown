@@ -1,32 +1,38 @@
 {
     "name": "jiny/markdown",
-    "description": "jinyPHP Markdown",
-    "keywords": [
-        "jinyPHP",
-        "framwork",
-        "Markdown"
-    ],
-    "homepage": "http://www.jinyphp.com",
+    "description": "Markdown for jinyPHP",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
             "name": "hojinlee",
-            "email": "infohojin@gmail.com",
-            "homepage": "http://www.jinyphp.com"
+            "email": "infohojin@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "require": {
-        "php": ">= 7.0",
+        "php": "^8.1",
         "erusev/parsedown": "^1.7"
     },
     "autoload": {
         "psr-4": {
-            "Jiny\\Markdown\\": "src/"
+            "Jiny\\Markdown\\":"src/"
         },
-        "files": [
+        "files" : [
             "src/Helpers/Helper.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Jiny\\Markdown\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Jiny\\Markdown\\JinyMarkdownServiceProvider"
+            ]
+        }
     }
+
 }
