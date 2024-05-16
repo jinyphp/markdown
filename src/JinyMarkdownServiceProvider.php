@@ -1,5 +1,4 @@
 <?php
-
 namespace Jiny\Markdown;
 
 use Illuminate\Support\ServiceProvider;
@@ -20,6 +19,33 @@ class JinyMarkdownServiceProvider extends ServiceProvider
         // 데이터베이스
         $this->loadMigrationsFrom(__DIR__.'/../databases/migrations');
 
+        /**
+         * Markdown Directive
+         */
+        Blade::directive('markdownText', function ($args) {
+            $body = Blade::stripParentheses($args);
+            return (new \Parsedown())->text($body);
+        });
+
+        Blade::directive('markdownFile', function ($args) {
+            $args = Blade::stripParentheses($args);
+            $args = trim($args,'"');
+            if($args[0] == ".") {
+                $path = str_replace(".", DIRECTORY_SEPARATOR, $args).".md";
+                $realPath = dirname(Blade::getPath()).$path;
+            }
+
+            if (file_exists($realPath)) {
+                $body = file_get_contents($realPath);
+                return (new \Parsedown())->text($body);
+            } else {
+                return "cannot find markdown resource ".$realPath."<br>";
+            }
+        });
+
+
+
+
 
     }
 
@@ -27,9 +53,11 @@ class JinyMarkdownServiceProvider extends ServiceProvider
 
     public function register()
     {
+
         /* 라이브와이어 컴포넌트 등록 */
         $this->app->afterResolving(BladeCompiler::class, function () {
-
+            Livewire::component('quill-editor',
+                \Jiny\Markdown\Http\Livewire\QuillEditor::class);
         });
     }
 }
