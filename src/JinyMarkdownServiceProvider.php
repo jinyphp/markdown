@@ -43,6 +43,17 @@ class JinyMarkdownServiceProvider extends ServiceProvider
             }
         });
 
+        Blade::directive('codeFile', function ($args) {
+            $expression = Blade::stripParentheses($args);
+
+            return "<?php echo \$__env->make({$expression}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>";
+        });
+
+        // 마크다운 컴포넌트
+        Blade::component(\Jiny\Markdown\View\Markdown::class,'markdown');
+
+
+
 
 
 

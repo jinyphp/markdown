@@ -5,24 +5,67 @@ use Livewire\Component;
 
 class QuillEditor extends Component
 {
-    public $quillContent;
+    public $path;
+    public $filename;
+    public $body;
+
+    public $mode=false;
+
+    public function mount()
+    {
+        $path = resource_path('content');
+        if(!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        if($this->filename) {
+            $this->filename = ltrim($this->filename, '/');
+        }
+
+        if($this->filename) {
+            $filePath = $path.DIRECTORY_SEPARATOR.$this->filename;
+            if(file_exists($filePath)) {
+                $this->body = file_get_contents($filePath);
+            }
+        }
+    }
 
     public function render()
     {
-
         return view('jiny-markdown::livewire.quill');
     }
 
-    public function upload()
+    public function edit()
     {
-        // Quill 에디터에서 전송된 데이터 받기
-        $content = json_decode($this->quillContent, true);
+        $this->mode = "edit";
+    }
 
-        // 이제 $content를 데이터베이스에 저장하거나 필요한 작업을 수행할 수 있습니다.
-        // 예를 들어, 데이터베이스에 저장한다면:
-        // $db->query("INSERT INTO posts (content) VALUES ('$content')");
+    public function store()
+    {
+        $this->parseImage();
 
-        // 업로드가 성공적으로 처리되었음을 알립니다.
-        session()->flash('message', '업로드가 성공적으로 완료되었습니다.');
+        $path = resource_path('content');
+        if($this->filename) {
+            $filePath = $path.DIRECTORY_SEPARATOR.$this->filename;
+            file_put_contents($filePath, $this->body);
+        }
+
+        $this->mode = false;
+    }
+
+    private function parseImage()
+    {
+        // 정규식을 사용하여 이미지 파일명 추출
+        preg_match_all('/<img.*?src=["\']([^"\']+)/', $this->body, $matches);
+
+        // 추출된 이미지 파일명 목록
+        $imageFileNames = $matches[1];
+
+        // 파일명 출력
+        foreach ($imageFileNames as $img) {
+            dump($img);
+        }
+
+        //dd($imageFileNames);
     }
 }
