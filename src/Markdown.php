@@ -35,6 +35,9 @@ class Markdown
         }
     }
 
+    // 싱글턴 공유데이터
+    public $bookmark = [];
+
 
 
 
