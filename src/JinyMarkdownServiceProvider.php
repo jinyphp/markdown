@@ -69,6 +69,15 @@ class JinyMarkdownServiceProvider extends ServiceProvider
         $this->app->afterResolving(BladeCompiler::class, function () {
             Livewire::component('quill-editor',
                 \Jiny\Markdown\Http\Livewire\QuillEditor::class);
+
+            Livewire::component('markdown-quill-editor',
+                \Jiny\Markdown\Http\Livewire\MarkdownQuillEditor::class);
+
+            Livewire::component('markdown-edit',
+                \Jiny\Markdown\Http\Livewire\MarkdownEdit::class);
+
+            Livewire::component('markdown-bookmark',
+                \Jiny\Markdown\Http\Livewire\Bookmark::class);
         });
     }
 }

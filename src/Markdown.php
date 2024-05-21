@@ -22,22 +22,26 @@ class Markdown
     public static function instance()
     {
         if (!isset(self::$Instance)) {
-            // 자기 자신의 인스턴스를 생성합니다.                
+            // 자기 자신의 인스턴스를 생성합니다.
             self::$Instance = new self();
 
             // 마크다운 인스턴스
-            self::$Instance->Parsedown();
+            //self::$Instance->Parsedown();
 
             return self::$Instance;
         } else {
             // 인스턴스가 중복
-            return self::$Instance; 
+            return self::$Instance;
         }
     }
+
+
+
 
     /**
      * 객체를 확장합니다.
      */
+    /*
     private $Parsedown;
     private function Parsedown()
     {
@@ -48,16 +52,19 @@ class Markdown
 
         return $this;
     }
- 
+    */
+
     /**
      * 변환을 처리합니다.
      */
+    /*
     public function render($body)
     {
         return $this->Parsedown->text($body);
     }
-        
+    */
+
     /**
-     * 
+     *
      */
 }
