@@ -78,6 +78,10 @@ class JinyMarkdownServiceProvider extends ServiceProvider
 
             Livewire::component('markdown-bookmark',
                 \Jiny\Markdown\Http\Livewire\Bookmark::class);
+
+
+            Livewire::component('site-page-markdown',
+                \Jiny\Markdown\Http\Livewire\SitePageMarkdown::class);
         });
     }
 }

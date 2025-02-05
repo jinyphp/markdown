@@ -16,10 +16,6 @@ class MarkdownPage
         if (!isset(self::$Instance)) {
             // 자기 자신의 인스턴스를 생성합니다.
             self::$Instance = new self();
-
-            // 마크다운 인스턴스
-            //self::$Instance->Parsedown();
-
             return self::$Instance;
         } else {
             // 인스턴스가 중복
@@ -36,23 +32,16 @@ class MarkdownPage
     public function load($file)
     {
         // 일치하는 마크다운 파일이 있는 경우
-        if(file_exists($file.".md")) {
-            $this->filename = $file.".md";
-            return file_get_contents($file.".md");
-        }
-
-        // 일치하는 폴더가 존재하는 경우,
-        // index로 대체합니다.
-        else
-        if(file_exists($file.DIRECTORY_SEPARATOR."index.md")) {
-            $this->filename = $file.DIRECTORY_SEPARATOR."index.md";
-            return file_get_contents($file.DIRECTORY_SEPARATOR."index.md");
+        if(file_exists($file)) {
+            return file_get_contents($file);
         }
 
         return false;
     }
 
-    // 프론트메터 분리
+    /**
+     * 프론트메터 분리
+     */
     public function parser($txt="")
     {
         $frontMatter = \Webuni\FrontMatter\FrontMatterChain::create();
@@ -64,12 +53,41 @@ class MarkdownPage
         return $this;
     }
 
-    public function render()
+    public function view($path=null)
     {
-        $Parsedown = new \Parsedown();
-        $html = $Parsedown->parse($this->content);
+        // 마크다운 변환
+        $html = (new \Parsedown())->parse($this->content);
 
+        // fontmatter에 layout이 있는 경우
+        if(isset($this->data['layout'])) {
+            $viewFile = $this->data['layout'];
+        } else {
+            // 레이아웃 지정 파일
+            if($path) {
+                $viewFile = $path;
+            } else {
+                // 기본 레이아웃
+                $viewFile = "jiny-markdown::layout";
+            }
+        }
 
+        // 북마크
+        $bookmark = $this->parseBookmark($html);
+        $html = $this->html; // 북마크 포함 html 반환
+
+        return view($viewFile,[
+            'slot' => $html,
+            'bookmark' => $bookmark, // 북마크
+            'data' => $this->data, // 프론트메터 데이터
+            'filename' => $this->filename // 파일명
+        ]);
+    }
+
+    /**
+     * 북마크 추출
+     */
+    public function parseBookmark($html)
+    {
         // HTML 콘텐츠를 DOMDocument 개체에 로드
         $doc = new \DOMDocument('1.0', 'UTF-8');
         libxml_use_internal_errors(true);
@@ -92,53 +110,25 @@ class MarkdownPage
             $h2->setAttribute('id', $id);
 
             // Add the h2 text to the array
-            $h2Array[] = $h2->textContent;
+            $h2Array[] = [
+                'title' => $h2->textContent,
+                'id' => $id
+            ];
         }
 
-        $this->bookmark = $h2Array;
-
-
         $bodyContent = '';
-        $bodyChildren = $doc->getElementsByTagName('body')->item(0)->childNodes;
-        foreach ($bodyChildren as $child) {
-            $bodyContent .= $doc->saveHTML($child);
+
+        $body = $doc->getElementsByTagName('body')->item(0);
+        if ($body) {
+            $bodyChildren = $body->childNodes;
+            foreach ($bodyChildren as $child) {
+                $bodyContent .= $doc->saveHTML($child);
+            }
         }
 
         $this->html = $bodyContent;
 
-        return $this->html;
-    }
-
-    public function view($path)
-    {
-        $view = view("jiny-markdown::pages",[
-            //'slot' => $this->html,
-            //'bookmark' => $this->bookmark,
-            'filename' => $this->filename
-        ]);
-
-        if(isset($this->data['layout'])) {
-            $layout = $path.$this->data['layout'];
-            if(view()->exists($layout)) {
-                return view($layout,[
-                    'slot'=>$view,
-                    'bookmark' => $this->bookmark
-                ]);
-
-            }
-        }
-
-        $layout = $path."markdown";
-        if(view()->exists($layout)) {
-            // 변수를 템플릿에 전달하고 컴파일된 결과를 반환합니다.
-            return view($layout,[
-                'slot'=>$view,
-                'bookmark' => $this->bookmark
-            ]);
-
-        }
-
-        return $this->html;
+        return $h2Array;
     }
 
 }
